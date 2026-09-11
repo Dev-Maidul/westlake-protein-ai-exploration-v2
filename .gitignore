@@ -1,0 +1,8 @@
+*.pt
+*.bin
+*.pdb
+*.cif
+weights/
+__pycache__/
+*.pyc
+.DS_Store
