@@ -18,7 +18,7 @@ Prepared for **Prof. Fajie Yuan**, Westlake University — following up on his s
 | **Pinal** | Generate a new protein from a text description | ✅ | `"Actin."` → generated sequence whose N-terminus closely matches real human beta-actin |
 | **Evolla** | Chat-style Q&A about a protein | ⚠️ not run | Smallest checkpoint is 10B params — beyond this laptop; hosted demo currently down server-side |
 
-Everything below is the detail behind that table: what each model actually does, what broke while running it, and how I fixed it.
+Everything below is the detail behind that table: what each model actually does, what broke while running it, and how I fixed it. Every result was also **independently re-run from scratch afterward** to confirm reproducibility — see [VERIFICATION.md](./VERIFICATION.md) for the exact commands, raw output, and timing (including one honest discrepancy: Pinal's output varies slightly between runs by design, since it samples rather than always taking the top prediction).
 
 ## A note on tools
 
@@ -160,8 +160,19 @@ Combines a protein encoder with a large language model decoder for free-form pro
 The smallest available checkpoint is **10B parameters** (up to 80B for the larger variant) — beyond what
 a 17GB-RAM laptop with no dedicated GPU can load. I tried the hosted demo, **chat-protein.com**, as an
 alternative; it's currently returning a DNS/Cloudflare error server-side (checked multiple times over
-several days). I've read the paper and repo in full and understand the architecture; I'll keep retrying
-the hosted demo.
+several days). I've read the paper and repo in full and understand the architecture.
+
+I also checked two alternative paths in detail (full numbers in
+[VERIFICATION.md](./VERIFICATION.md#evolla--hardwarequantization-feasibility-check)):
+- **Kaggle's free P100 (16GB VRAM):** the official checkpoint is only distributed in **F32 (41.57GB)** —
+  even INT4 quantization (~5.2GB) would fit in VRAM, but there's no pre-quantized checkpoint, so
+  quantizing on the fly still requires downloading the full 41.57GB first, past Kaggle's typical disk
+  quota.
+- **Community quantized/GGUF versions:** searched the HuggingFace Hub directly — none exist; only the
+  five official full-precision checkpoints are published.
+
+So this isn't a "try harder" gap — it's a genuine missing-lightweight-checkpoint problem for this model
+family right now.
 
 **Question for Prof. Yuan:** Is there (or are there plans for) a smaller/distilled/quantized Evolla usable
 on limited hardware, or is a large LLM decoder essentially required for this kind of task?
