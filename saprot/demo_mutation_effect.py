@@ -8,6 +8,8 @@ Method: "masked marginal" zero-shot scoring (the approach SaProt/ESM papers use)
      wild-type token at that position. Positive score = mutation looks
      evolutionarily favorable to the model; negative = unfavorable.
 """
+import utils.transport
+import utils.session
 import sys
 import torch
 from transformers import EsmTokenizer, EsmForMaskedLM
